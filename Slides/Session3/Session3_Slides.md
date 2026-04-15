@@ -2462,3 +2462,3159 @@ That is why deep learning is both powerful and challenging:
 
 - powerful because complex functions can be built step by step,
 - challenging because the network may contain millions of parameters that must be learned from data.
+
+---
+
+## Slide 7: Dimensions
+
+### What's On This Slide
+
+This slide makes the notation from Slides 4, 5, and 6 concrete by showing an actual example network and working out the **dimensions** of its weight matrices.
+
+The example network has:
+
+- input dimension `d = 3`
+- first hidden layer size `k_1 = 4`
+- second hidden layer size `k_2 = 4`
+- output dimension `m = 2`
+
+So the architecture is:
+
+```text
+3 inputs -> 4 hidden units -> 4 hidden units -> 2 outputs
+```
+
+The slide then answers three practical questions:
+
+1. What is the shape of each weight matrix?
+2. What is the general rule for matrix dimensions?
+3. How many total parameters does this network have?
+
+This is a very important slide because it teaches you how to check whether your network equations are dimensionally correct.
+
+---
+
+### Why Dimensions Matter at All
+
+In deep learning, writing the right formula is not enough.
+
+You also have to make sure the shapes are compatible.
+
+If the dimensions are wrong:
+
+- matrix multiplication does not make sense,
+- the layer cannot be computed,
+- and in code you get shape mismatch errors.
+
+So dimensions are not a minor detail.
+They are part of understanding what the layer is actually doing.
+
+This slide is training you to think:
+
+> for every layer, how many values go in, and how many values come out?
+
+Once you know that, the matrix shape follows naturally.
+
+---
+
+### The Example Network on the Slide
+
+The slide gives a specific architecture:
+
+- input vector with `d = 3` features
+- first hidden layer with `k_1 = 4` neurons
+- second hidden layer with `k_2 = 4` neurons
+- output vector with `m = 2` values
+
+So if we label the layers:
+
+- layer 0: input, size `3`
+- layer 1: hidden 1, size `4`
+- layer 2: hidden 2, size `4`
+- layer 3: output, size `2`
+
+Then the forward flow is:
+
+```text
+x in R^3
+-> h^(1) in R^4
+-> h^(2) in R^4
+-> y_hat in R^2
+```
+
+That immediately tells us the sizes of all intermediate vectors.
+
+---
+
+### Weight Matrix for the First Hidden Layer
+
+The slide writes:
+
+$$
+\Theta^{(1)} \in \mathbb{R}^{4 \times 3}
+$$
+
+Why `4 x 3`?
+
+Because:
+
+- layer 1 has `4` neurons
+- the previous layer has `3` values coming in
+
+So each of the `4` neurons in hidden layer 1 needs:
+
+- one weight for input 1,
+- one weight for input 2,
+- one weight for input 3
+
+That means:
+
+- `4` rows, one for each neuron in the current layer
+- `3` columns, one for each value from the previous layer
+
+So:
+
+$$
+\Theta^{(1)} \in \mathbb{R}^{k_1 \times d} = \mathbb{R}^{4 \times 3}
+$$
+
+This is the first example of the general dimension rule.
+
+---
+
+### Weight Matrix for the Second Hidden Layer
+
+The slide then writes:
+
+$$
+\Theta^{(2)} \in \mathbb{R}^{4 \times 4}
+$$
+
+This time:
+
+- hidden layer 2 has `4` neurons
+- hidden layer 1 also has `4` neurons
+
+So the current layer has `4` outputs, and the previous layer also provides `4` inputs.
+
+That gives:
+
+$$
+\Theta^{(2)} \in \mathbb{R}^{k_2 \times k_1} = \mathbb{R}^{4 \times 4}
+$$
+
+This is a nice example because it shows that square matrices can appear, but that is only because the two adjacent layers happen to have the same size.
+
+The fact that it is `4 x 4` is not because hidden layers are always square. It is only because this particular network has `k_1 = 4` and `k_2 = 4`.
+
+---
+
+### Weight Matrix for the Output Layer
+
+Finally, the slide writes:
+
+$$
+\Theta^{(3)} \in \mathbb{R}^{2 \times 4}
+$$
+
+Why?
+
+Because:
+
+- the output layer has `m = 2` outputs
+- the previous hidden layer has `k_2 = 4` units
+
+So:
+
+$$
+\Theta^{(3)} \in \mathbb{R}^{m \times k_2} = \mathbb{R}^{2 \times 4}
+$$
+
+This means:
+
+- there are `2` rows, one for each output unit
+- there are `4` columns, one for each value coming from hidden layer 2
+
+So each output unit looks at all 4 activations from the previous hidden layer.
+
+---
+
+### The General Rule
+
+The slide summarizes the pattern as:
+
+$$
+\Theta^{(l)} \in \mathbb{R}^{k_l \times k_{l-1}}
+$$
+
+This is one of the most useful formulas in the whole notation section.
+
+It says:
+
+- `k_{l-1}` = size of the previous layer
+- `k_l` = size of the current layer
+
+Therefore:
+
+- columns correspond to the previous layer
+- rows correspond to the current layer
+
+So if you know the sizes of two adjacent layers, you immediately know the shape of the weight matrix between them.
+
+That is why the slide also states:
+
+- **rows = neurons in layer `l`**
+- **cols = neurons in layer `l - 1`**
+
+This is the dimension rule you should memorize.
+
+---
+
+### Why Rows Correspond to the Current Layer
+
+Each row of `\Theta^{(l)}` belongs to one neuron in layer `l`.
+
+That row contains all incoming weights used by that neuron to combine the outputs from layer `l - 1`.
+
+So if the current layer has `k_l` neurons, we need `k_l` rows.
+
+This matches the idea from Slide 4:
+
+> one row = all weights used by one neuron
+
+The only difference now is that the notation is generalized to any layer `l`.
+
+---
+
+### Why Columns Correspond to the Previous Layer
+
+Each column of `\Theta^{(l)}` corresponds to one neuron or feature from layer `l - 1`.
+
+That column tells us how one value from the previous layer influences all neurons in the current layer.
+
+So if layer `l - 1` has `k_{l-1}` units, the matrix needs `k_{l-1}` columns.
+
+This gives the intuitive interpretation:
+
+- rows answer: "what weights does each current neuron use?"
+- columns answer: "where does each previous-layer value connect?"
+
+This row-column interpretation is one of the best ways to avoid confusion.
+
+---
+
+### Checking the Vector Dimensions Too
+
+The slide focuses on weight matrices, but it also helps to check the vector sizes.
+
+In this example:
+
+- `x \in \mathbb{R}^3`
+- `h^(1) \in \mathbb{R}^4`
+- `h^(2) \in \mathbb{R}^4`
+- `\hat{y} \in \mathbb{R}^2`
+
+Then the matrix multiplications make sense:
+
+$$
+\Theta^{(1)} x : (4 \times 3)(3 \times 1) = 4 \times 1
+$$
+
+$$
+\Theta^{(2)} h^{(1)} : (4 \times 4)(4 \times 1) = 4 \times 1
+$$
+
+$$
+\Theta^{(3)} h^{(2)} : (2 \times 4)(4 \times 1) = 2 \times 1
+$$
+
+So every step produces exactly the vector size we want for the next layer.
+
+That is the real purpose of dimension reasoning.
+
+---
+
+### Total Number of Parameters
+
+At the bottom, the slide computes:
+
+$$
+4(3 + 1) + 4(4 + 1) + 2(4 + 1) = 16 + 20 + 10 = 46
+$$
+
+This is the total number of learnable parameters in the example network.
+
+Let us unpack it layer by layer.
+
+For the first hidden layer:
+
+- `4 x 3 = 12` weights
+- `4` biases
+- total = `16`
+
+For the second hidden layer:
+
+- `4 x 4 = 16` weights
+- `4` biases
+- total = `20`
+
+For the output layer:
+
+- `2 x 4 = 8` weights
+- `2` biases
+- total = `10`
+
+Then:
+
+$$
+16 + 20 + 10 = 46
+$$
+
+So the network has 46 trainable numbers altogether.
+
+---
+
+### Why the Parameter Count Formula Matches Slide 6
+
+In Slide 6, the general parameter formula was:
+
+$$
+|\theta| = \sum_{l=1}^{L} k_l (k_{l-1} + 1)
+$$
+
+Slide 7 is simply applying that formula to a specific architecture.
+
+Here:
+
+- `k_0 = 3`
+- `k_1 = 4`
+- `k_2 = 4`
+- `k_3 = 2`
+
+So:
+
+$$
+k_1(k_0 + 1) + k_2(k_1 + 1) + k_3(k_2 + 1)
+$$
+
+becomes:
+
+$$
+4(3 + 1) + 4(4 + 1) + 2(4 + 1)
+$$
+
+which is exactly the expression on the slide.
+
+So Slide 7 is not introducing a new formula. It is showing you how to use the previous one correctly.
+
+---
+
+### What This Slide Is Really Teaching You
+
+At a deeper level, the slide is teaching a habit:
+
+> whenever you see a neural-network architecture, you should immediately be able to infer the shape of each weight matrix and the total number of parameters.
+
+That skill is extremely useful because it helps with:
+
+- understanding formulas,
+- checking whether derivations make sense,
+- implementing models correctly,
+- debugging shape errors,
+- and estimating model size.
+
+So even though the slide looks computational, it is really building intuition for how deep networks are structured.
+
+---
+
+### Common Shortcut to Remember
+
+A good shortcut is:
+
+> **weight matrix shape = (current layer size) x (previous layer size)**
+
+and
+
+> **parameter count per layer = (current layer size) x ((previous layer size) + 1)**
+
+The extra `+1` again comes from the bias term.
+
+If you remember those two rules, you can reconstruct most of the slide very quickly.
+
+---
+
+### How Slide 7 Connects to the Bigger Picture
+
+Slides 3 to 6 built the general language of deep networks:
+
+- stacking layers
+- matrix notation
+- layer notation
+- function composition
+- parameter counting
+
+Slide 7 now grounds that language in a specific example.
+
+That matters because abstract notation can feel easy until you actually try to assign dimensions.
+
+This slide shows that the formulas are not just symbolic. They correspond to concrete layer sizes and concrete parameter counts.
+
+It is the bridge between theory and implementation.
+
+---
+
+### Main Takeaway
+
+The whole slide can be summarized as:
+
+> For a layer `l`, the weight matrix always has shape `k_l x k_{l-1}` because it maps outputs from the previous layer into neurons of the current layer, and the total number of parameters is found by adding weights and biases layer by layer.
+
+So Slide 7 is teaching you how to read a network architecture numerically, not just visually.
+
+---
+
+## Slide 8: Batch Formulation
+
+### What's On This Slide
+
+This slide takes the layer equations you have seen so far and extends them from **one sample at a time** to **many samples at once**.
+
+That is a very important shift, because in real deep-learning code we almost never process just one example in isolation.
+
+Instead, we usually process a **batch** of `N` samples together.
+
+So Slide 8 is answering the practical question:
+
+> If one sample uses vector notation, how do we write the same layer computation for a whole batch of samples efficiently?
+
+The slide gives the answer in the notation used by PyTorch, where the **batch dimension comes first**.
+
+---
+
+### Start with the Single-Sample Formula
+
+The slide begins by reminding us of the single-sample hidden-layer computation:
+
+$$
+h^{(l)} = a\left(\theta_0^{(l)} + \Theta^{(l)} h^{(l-1)}\right) \in \mathbb{R}^{k_l}
+$$
+
+This is the layer rule we already know:
+
+- `h^(l-1)` is the input to layer `l`
+- `\Theta^(l)` is the weight matrix
+- `\theta_0^(l)` is the bias vector
+- `a(.)` is the activation function
+
+For one sample, everything is a vector.
+
+That is mathematically clean, but not how training is typically implemented at scale.
+
+---
+
+### Why We Want Batches
+
+In practice, we usually have many training examples.
+
+Instead of computing:
+
+- one forward pass for sample 1,
+- then one forward pass for sample 2,
+- then one forward pass for sample 3,
+
+we stack several samples together and process them in parallel.
+
+This is useful because:
+
+- it is computationally more efficient,
+- modern hardware is optimized for matrix operations,
+- and gradient-based training is usually done on mini-batches rather than single samples.
+
+So Slide 8 is bridging the gap between clean math notation and actual deep-learning implementation.
+
+---
+
+### Batch of `N` Samples: Stack as Rows
+
+The slide says:
+
+$$
+X \in \mathbb{R}^{N \times d}, \qquad H^{(l)} \in \mathbb{R}^{N \times k_l}
+$$
+
+This means:
+
+- `N` = number of samples in the batch
+- each row of `X` is one input example
+- each row of `H^(l)` is the activation of one sample at layer `l`
+
+So instead of:
+
+- one input vector `x \in \mathbb{R}^d`
+
+we now have:
+
+- one input matrix `X \in \mathbb{R}^{N \times d}`
+
+where the rows are:
+
+```text
+sample 1
+sample 2
+...
+sample N
+```
+
+This is what "stack as rows" means.
+
+---
+
+### PyTorch Convention: Batch First
+
+The slide explicitly says:
+
+> **PyTorch convention: batch first**
+
+This means the first dimension of the tensor is the batch size.
+
+So if we have:
+
+- `N` samples
+- `d` input features
+
+then PyTorch stores the input as:
+
+```python
+X.shape = (N, d)
+```
+
+and not `(d, N)`.
+
+That choice affects how we write the matrix multiplication.
+
+It is one of the most important practical conventions to internalize if you are working with PyTorch.
+
+---
+
+### The Batch Forward Pass Formula
+
+The slide writes:
+
+$$
+H^{(l)} = a\left(\mathbf{1}\theta_0^{(l)\top} + H^{(l-1)}\left(\Theta^{(l)}\right)^{\top}\right)
+$$
+
+This is the batch version of the single-sample equation.
+
+Let us unpack it carefully.
+
+`H^(l-1)`:
+
+- shape `N x k_{l-1}`
+- one row per sample
+- one column per feature coming from the previous layer
+
+`\Theta^(l)^T`:
+
+- shape `k_{l-1} x k_l`
+
+So:
+
+$$
+H^{(l-1)}\left(\Theta^{(l)}\right)^{\top}
+$$
+
+has shape:
+
+$$
+(N \times k_{l-1})(k_{l-1} \times k_l) = N \times k_l
+$$
+
+which is exactly what we want for the output of layer `l` for all `N` samples.
+
+---
+
+### Why the Transpose Appears
+
+This is one of the biggest points of confusion for students.
+
+In the earlier mathematical notation, the weight matrix for one layer was written as:
+
+$$
+\Theta^{(l)} \in \mathbb{R}^{k_l \times k_{l-1}}
+$$
+
+That convention is natural when a single input is a column vector.
+
+But in the batch setting on this slide:
+
+- samples are stored as **rows**
+- so the batch matrix is multiplied from the **left**
+
+That means we need:
+
+$$
+H^{(l-1)} \cdot \left(\Theta^{(l)}\right)^\top
+$$
+
+instead of:
+
+$$
+\Theta^{(l)} H^{(l-1)}
+$$
+
+So the transpose appears because the storage convention changed from:
+
+- single column-vector input
+
+to:
+
+- batch of row-wise samples
+
+The computation is the same, but the matrix orientation changes to match the batch-first layout.
+
+---
+
+### What the Bias Term `1 theta_0^T` Means
+
+The formula also includes:
+
+$$
+\mathbf{1}\theta_0^{(l)\top}
+$$
+
+This is just a compact way to say:
+
+> copy the bias vector across all `N` rows in the batch
+
+Here:
+
+- `\mathbf{1}` is a column vector of ones with length `N`
+- `\theta_0^{(l)\top}` is the row version of the bias vector
+
+So their product creates an `N x k_l` matrix where every row is the same bias vector.
+
+That way, the bias can be added to every sample in the batch at once.
+
+In code, this is usually handled automatically by **broadcasting**.
+
+So while the math writes `\mathbf{1}\theta_0^{\top}` explicitly, PyTorch often lets you just write `+ b`.
+
+---
+
+### Shape Check for the Bias Term
+
+It helps to verify the dimensions:
+
+- `\mathbf{1}` has shape `N x 1`
+- `\theta_0^{(l)\top}` has shape `1 x k_l`
+
+So:
+
+$$
+\mathbf{1}\theta_0^{(l)\top}
+$$
+
+has shape:
+
+$$
+(N \times 1)(1 \times k_l) = N \times k_l
+$$
+
+That matches the shape of:
+
+$$
+H^{(l-1)}\left(\Theta^{(l)}\right)^{\top}
+$$
+
+so the addition is valid.
+
+Then the activation function `a(.)` is applied elementwise to the whole `N x k_l` matrix.
+
+---
+
+### What `H^(l)` Represents
+
+The output:
+
+$$
+H^{(l)} \in \mathbb{R}^{N \times k_l}
+$$
+
+means:
+
+- there are `N` rows, one for each sample in the batch
+- there are `k_l` columns, one for each neuron in layer `l`
+
+So entry `(n, j)` in `H^(l)` is:
+
+> the activation of neuron `j` in layer `l` for sample `n`
+
+That interpretation is very useful when you are debugging or reasoning about tensors.
+
+---
+
+### How This Connects to the Earlier Single-Sample Formula
+
+It is important to see that nothing fundamentally new is happening.
+
+For a single sample, we had:
+
+$$
+h^{(l)} = a\left(\theta_0^{(l)} + \Theta^{(l)} h^{(l-1)}\right)
+$$
+
+For a batch, we simply do that same computation for many samples at once.
+
+So the batch formula is not a different neural network.
+It is just the vectorized, implementation-friendly version of the same layer rule.
+
+You can think of it as:
+
+```text
+single sample equation
+applied to all rows simultaneously
+```
+
+That is the key idea.
+
+---
+
+### The Code on the Slide
+
+The slide then gives the PyTorch-style summary:
+
+```python
+X.shape = (N, d)
+W.shape = (k, d)
+H = X @ W.T + b
+```
+
+This is exactly what PyTorch computes.
+
+Let us decode it:
+
+- `X` contains `N` samples, each with `d` features
+- `W` contains `k` neurons, each with `d` incoming weights
+- `W.T` has shape `(d, k)`
+- `X @ W.T` therefore has shape `(N, k)`
+- `b` is added to each row by broadcasting
+
+So this code is the implementation form of the batch equation on the slide.
+
+This is one of the most valuable parts of the slide because it connects lecture notation directly to real code.
+
+---
+
+### Why `W.shape = (k, d)` Matches the Earlier Math
+
+Students sometimes notice that the code uses:
+
+```python
+W.shape = (k, d)
+```
+
+and wonder whether that contradicts the earlier notation.
+
+It does not.
+
+This is still the same idea:
+
+- `k` rows = current layer neurons
+- `d` columns = previous-layer features
+
+That is exactly the same structure as:
+
+$$
+\Theta \in \mathbb{R}^{k \times d}
+$$
+
+The only reason we use `W.T` in the batch formula is that `X` is stored row-wise.
+
+So the code and the math are consistent.
+
+---
+
+### Why Batch Formulation Matters for Training
+
+This slide matters far beyond notation.
+
+Training algorithms usually work with batches because:
+
+- loss is often computed over multiple examples together
+- gradients are usually estimated from batches
+- GPUs and deep-learning libraries are optimized for large matrix operations
+
+So if you want to understand modern deep-learning code, you must be comfortable moving from:
+
+- single-sample vector formulas
+
+to:
+
+- batch matrix formulas
+
+That is exactly the transition this slide is teaching.
+
+---
+
+### A Simple Way to Remember It
+
+A good way to remember the batch rule is:
+
+> single sample = vectors
+> batch of samples = matrices whose rows are samples
+
+So:
+
+- `x` becomes `X`
+- `h^(l)` becomes `H^(l)`
+- bias addition becomes row-wise broadcasting
+- the weight matrix gets transposed in the multiplication because the batch is row-oriented
+
+If you keep that picture in mind, the slide becomes much easier to remember.
+
+---
+
+### How Slide 8 Connects to the Earlier Slides
+
+The earlier slides built the mathematical description of a deep network:
+
+- Slide 4: one layer in matrix notation
+- Slide 5: indexed layers and forward pass
+- Slide 6: the whole network as function composition
+- Slide 7: dimensions of the matrices
+
+Slide 8 now shows how this same mathematics is written in the form that actual deep-learning frameworks use.
+
+So this slide is the bridge from:
+
+- mathematical notation for one example
+
+to:
+
+- implementation-ready notation for many examples
+
+That is why it is so important.
+
+---
+
+### Main Takeaway
+
+The whole slide can be summarized as:
+
+> In batch formulation, we stack samples as rows, replace vectors by matrices like `X` and `H^(l)`, and compute the whole layer for all samples at once using `H = X @ W.T + b` with the activation applied elementwise.
+
+This is the practical form of the neural-network equations used in PyTorch and most modern deep-learning code.
+
+---
+
+## Slide 9: The Learning Problem
+
+### What's On This Slide
+
+This slide is a major conceptual transition in Session 3.
+
+The earlier slides were mainly about:
+
+- how to represent deep networks,
+- how to write them mathematically,
+- how to understand their dimensions,
+- and how to compute a forward pass.
+
+Slide 9 now asks the real training question:
+
+> Once we have a network architecture, how do we make it actually learn?
+
+That is why the slide is called **The Learning Problem**.
+
+It is not talking about a single formula anymore.
+It is defining the full objective of supervised learning.
+
+---
+
+### What We Have
+
+The slide starts with two ingredients:
+
+1. **A network `f_theta` with a forward pass**
+2. **A dataset**
+
+The dataset is written as:
+
+$$
+\mathcal{D} = \{(x^{(i)}, y^{(i)})\}_{i=1}^{N}
+$$
+
+This notation means:
+
+- we have `N` examples,
+- each example has an input `x^(i)`,
+- and a corresponding target or true output `y^(i)`.
+
+So the dataset consists of input-output pairs.
+
+For example:
+
+- in image classification, `x^(i)` could be an image and `y^(i)` its label
+- in house-price prediction, `x^(i)` could be house features and `y^(i)` the price
+- in medical diagnosis, `x^(i)` could be patient measurements and `y^(i)` the diagnosis
+
+So this slide is placing the network into the standard supervised-learning setup:
+
+```text
+input x -> model f_theta(x) -> prediction y_hat
+compare prediction with true target y
+```
+
+---
+
+### What `f_theta` Really Means
+
+The notation `f_theta` is important.
+
+It means:
+
+- the network defines a function `f`
+- but the exact function depends on the parameter values `theta`
+
+So different choices of `theta` give different prediction functions.
+
+This is exactly what the little graph on the right side is showing:
+
+- `f_theta^a`
+- `f_theta^b`
+- `f_theta^c`
+
+These are different candidate functions from the same model family.
+
+In other words:
+
+> the architecture defines the space of possible functions, and the parameter values decide which particular function we currently have.
+
+That is a core learning-theory idea hidden in the slide.
+
+---
+
+### The Graph: Which `f_theta` Is Best?
+
+The graph on the right shows data points and several possible curves.
+
+This picture is asking a very important question:
+
+> **Which `f_theta` is best?**
+
+That is the whole learning problem in one sentence.
+
+We are not asking:
+
+- "Can the network compute something?"
+- "Can we write the forward pass?"
+
+We are asking:
+
+- "Among all parameter settings, which one gives the best mapping from input to output?"
+
+So the purpose of learning is to choose parameter values `theta` that make the network's function match the pattern in the data as well as possible.
+
+---
+
+### What We Want
+
+The slide then states the goal:
+
+> **Parameters `theta` such that `f_theta(x) ≈ y` on unseen data**
+
+This sentence is extremely important.
+
+It contains the real target of machine learning:
+
+- not just fitting the examples we already have,
+- but making good predictions on new examples we have not seen before.
+
+That phrase **unseen data** is what makes the problem genuinely statistical.
+
+The model should learn the underlying pattern, not merely memorize the training set.
+
+So the true goal is:
+
+```text
+learn a function that generalizes
+```
+
+not just:
+
+```text
+learn a function that copies the training data
+```
+
+This is one of the most important ideas in the whole course.
+
+---
+
+### Why "Unseen Data" Matters So Much
+
+Suppose a model performs perfectly on the training examples but fails badly on new inputs.
+
+That model is not useful.
+
+Why?
+
+Because the whole reason we train a neural network is to use it on future data.
+
+So when the slide says:
+
+> `f_theta(x) ≈ y` on unseen data
+
+it is emphasizing **generalization**.
+
+Generalization means:
+
+- the model captures a rule or pattern that extends beyond the examples it was shown
+
+This is the real success criterion for machine learning.
+
+So Slide 9 is not just about finding any good `theta`.
+It is about finding `theta` that works beyond the training set.
+
+---
+
+### The Learning Problem in Plain Language
+
+If we translate the slide into plain English, it says:
+
+1. We have a model with many adjustable parameters
+2. We have data telling us correct input-output behavior
+3. We want to choose the parameters so the model predicts well
+4. We especially want it to predict well on new data
+
+That is the learning problem.
+
+Everything else in the rest of Session 3 will be about solving that problem.
+
+---
+
+### Why the Slide Splits the Problem into Two Questions
+
+The slide says there are **two open questions**:
+
+1. How do we **measure** how wrong `f_theta` is?
+2. How do we **find** good `theta` systematically?
+
+This is a very clean decomposition.
+
+Before we can train a network, we need both:
+
+- a way to judge quality
+- and a way to improve quality
+
+If either one is missing, learning cannot really happen.
+
+So the rest of the lecture naturally breaks into:
+
+- **loss functions**
+- **optimization**
+
+These are the next major topics because they answer exactly these two questions.
+
+---
+
+### Open Question 1: How Do We Measure Wrongness?
+
+The first question is:
+
+> How do we measure how wrong `f_theta` is?
+
+The slide answers:
+
+> **loss function**
+
+This is the next essential ingredient after defining the network.
+
+A loss function gives us a number that tells us how bad the model's prediction is.
+
+Without a loss function:
+
+- we cannot compare two parameter settings precisely,
+- we cannot say whether the model is improving,
+- and we cannot define a clear learning objective.
+
+So the loss function turns vague ideas like "good prediction" and "bad prediction" into a numerical quantity.
+
+That is why it comes first.
+
+---
+
+### Open Question 2: How Do We Find Good `theta` Systematically?
+
+The second question is:
+
+> How do we find good `theta` systematically?
+
+The slide answers:
+
+> **optimization**
+
+Even if we know how to measure error, that is still not enough.
+
+We also need a procedure that searches through parameter space and improves the model.
+
+That is what optimization does.
+
+Optimization is the machinery that says:
+
+- start from some initial parameter values
+- measure performance
+- adjust parameters in a direction that should improve performance
+- repeat
+
+So if the loss function tells us **how wrong** the model is, optimization tells us **how to reduce that wrongness**.
+
+---
+
+### Why These Two Questions Must Come in This Order
+
+The ordering matters.
+
+First, we need to define:
+
+- what counts as good
+- what counts as bad
+
+Only after that can we ask:
+
+- how do we improve the parameters?
+
+So the logic is:
+
+```text
+Define the target numerically -> then search for parameters that achieve it
+```
+
+This is why the next slides will talk first about loss functions and then about optimization.
+
+The lecture is following the exact structure introduced here.
+
+---
+
+### A Deeper Interpretation of the Slide
+
+At a deeper level, Slide 9 says that a neural network alone is not enough.
+
+A network architecture gives us:
+
+- expressive power
+- a parameterized family of functions
+
+But learning requires more than expressiveness.
+
+It requires:
+
+- data,
+- a criterion for success,
+- and a method for searching parameter space.
+
+So this slide marks the point where deep learning becomes an **optimization problem over functions defined by parameters**.
+
+That is the real conceptual jump.
+
+---
+
+### How This Connects to the Earlier Slides
+
+The earlier slides built the model side of the story:
+
+- what the layers are
+- how they compose
+- how many parameters they have
+- how the forward pass works
+
+Slide 9 now adds the task side of the story:
+
+- we have data
+- we want good predictions
+- we care about unseen data
+- we need loss and optimization
+
+So this is the slide where the session moves from:
+
+- **describing the model**
+
+to:
+
+- **describing the learning objective**
+
+That is why it is such an important turning point.
+
+---
+
+### A Good Short Summary of the Slide
+
+You can compress the whole slide into this:
+
+```text
+We have a parameterized network and labeled data.
+We want parameters that make the network predict correctly on new data.
+To do that, we need:
+1. a loss function
+2. an optimization method
+```
+
+That is the entire roadmap of the learning problem.
+
+---
+
+### Main Takeaway
+
+The whole slide can be summarized as:
+
+> The learning problem is to choose parameter values `theta` so that the network `f_theta` maps inputs to correct outputs not only on the training set, but on unseen data, and solving that problem requires both a loss function and an optimization method.
+
+This is the point where Session 3 stops asking "what is the network?" and starts asking "how do we make the network learn?"
+
+---
+
+## Slide 10: What Is a Loss Function?
+
+### What's On This Slide
+
+This slide answers the **first open question** from Slide 9:
+
+> How do we measure how wrong `f_theta` is?
+
+The answer is:
+
+> **use a loss function**
+
+This is a foundational idea in machine learning.
+
+A neural network can produce predictions, but training cannot begin until we have a numerical way to say:
+
+- how good a prediction is,
+- how bad a prediction is,
+- and whether one set of parameters is better than another.
+
+That numerical rule is the **loss function**.
+
+So Slide 10 is where the vague idea of "being wrong" becomes a precise scalar objective.
+
+---
+
+### The Goal: Measure Wrongness with One Scalar
+
+The slide states the goal very clearly:
+
+> **measure how wrong `f_theta` is with a single scalar**
+
+This is important.
+
+Why a **single scalar**?
+
+Because optimization algorithms need one numerical quantity to minimize.
+
+If the model makes a prediction, we need to compress the quality of that prediction into one number such that:
+
+- smaller means better,
+- larger means worse.
+
+That way, learning becomes a problem of driving that number down.
+
+So the loss function is the bridge between:
+
+- prediction quality,
+- and optimization.
+
+Without that single scalar, the model would have no clear direction for improvement.
+
+---
+
+### Per-Sample Loss `\ell(\hat{y}, y)`
+
+The slide first defines the **per-sample loss**, also called the **cost**:
+
+$$
+\ell(\hat{y}, y)
+$$
+
+This is a function that compares:
+
+- `\hat{y}` = the model's prediction
+- `y` = the true target
+
+and returns a number telling us how bad that prediction is for one example.
+
+So this is the local, sample-by-sample notion of error.
+
+In plain language:
+
+```text
+prediction + truth -> one number measuring wrongness
+```
+
+This is the basic unit from which the full training objective is built.
+
+---
+
+### The Three Properties on the Slide
+
+The slide lists three intuitive properties of a good per-sample loss:
+
+1. `\ell(\hat{y}, y) = 0` when `\hat{y} = y`  
+   That means a perfect prediction should incur no penalty.
+
+2. `\ell(\hat{y}, y) > 0` otherwise  
+   That means any mistake should produce some positive penalty.
+
+3. Larger when more wrong  
+   That means the loss should not only detect error, but also reflect **how much** error there is.
+
+These three properties capture the basic behavior we want from a loss.
+
+At a high level, a loss function should behave like a sensible score of mistake severity.
+
+---
+
+### Why "Larger When More Wrong" Matters
+
+This third property is especially important.
+
+Suppose the true value is `10`, and the model predicts:
+
+- `9.9`
+- `6`
+- `-100`
+
+All three predictions are technically "wrong."
+
+But they are not equally wrong.
+
+A good loss function should reflect that difference numerically.
+
+That is why loss functions are more useful than simple right/wrong indicators.
+
+They provide **graded feedback**.
+
+And graded feedback is exactly what optimization needs.
+
+---
+
+### From One Sample to the Whole Dataset
+
+A model is not trained on just one example.
+
+It is trained on a dataset:
+
+$$
+\mathcal{D} = \{(x^{(i)}, y^{(i)})\}_{i=1}^{N}
+$$
+
+So once we know how to measure error on one sample, we need a way to measure error over **all training samples together**.
+
+That is why the slide introduces the **dataset loss**:
+
+$$
+\mathcal{L}(\theta)
+$$
+
+This is the full training objective.
+
+It tells us how good or bad the current parameter values `theta` are on the dataset as a whole.
+
+---
+
+### Dataset Loss `L(theta)`
+
+The slide defines dataset loss as:
+
+$$
+\mathcal{L}(\theta) = \frac{1}{N} \sum_{i=1}^{N} \ell\left(f_{\theta}(x^{(i)}), y^{(i)}\right)
+$$
+
+This formula is one of the most important equations in the course.
+
+Let us read it carefully.
+
+For each training sample `i`:
+
+1. take the input `x^(i)`
+2. compute the model prediction `f_theta(x^(i))`
+3. compare that prediction to the true target `y^(i)` using the per-sample loss `\ell`
+4. get one scalar loss value
+
+Then:
+
+- add those losses over all `N` training samples
+- divide by `N`
+
+So the dataset loss is the **average per-sample loss over the training set**.
+
+That is exactly what the slide says underneath the formula:
+
+> **Average over all training samples**
+
+---
+
+### Why `L(theta)` Depends on `theta`
+
+The notation `\mathcal{L}(\theta)` is important.
+
+It means the total loss depends on the model parameters.
+
+Why?
+
+Because:
+
+- the parameters `theta` determine the prediction `f_theta(x^(i))`
+- the predictions determine the per-sample losses
+- the average of those losses gives the dataset loss
+
+So if we change `theta`, we change:
+
+- the predictions,
+- the losses,
+- and therefore the overall value of `\mathcal{L}(\theta)`.
+
+This is the quantity optimization will try to minimize.
+
+---
+
+### Why We Average Instead of Just Summing
+
+The slide uses:
+
+$$
+\frac{1}{N}\sum_{i=1}^{N}
+$$
+
+instead of just the raw sum.
+
+That is useful because averaging makes the loss scale less dependent on dataset size.
+
+If one dataset has 100 examples and another has 10,000, the average loss is easier to interpret and compare than the raw sum.
+
+So averaging gives us a normalized measure of how wrong the model is **per sample on average**.
+
+In practice, both sum and average appear in different contexts, but the average is the standard conceptual choice for the training objective.
+
+---
+
+### Why the Loss Is the Model's Compass
+
+The slide ends with the phrase:
+
+> **Loss: model compass - what is "better"?**
+
+That is an excellent way to think about it.
+
+A compass does not magically move you to the destination.
+It tells you which direction is the right one.
+
+The loss function plays the same role:
+
+- it does not update the parameters by itself,
+- but it tells us whether one parameter setting is better or worse than another.
+
+So the loss defines the meaning of improvement.
+
+Without a loss function, optimization would have no notion of direction.
+
+That is why the loss comes before gradient descent in the lecture.
+
+---
+
+### Choice of `\ell` Depends on the Task
+
+The slide emphasizes:
+
+> **Choice of `\ell` depends on the task**
+
+This is extremely important.
+
+There is no single universal loss function that is best for every problem.
+
+Different tasks need different ways of measuring prediction error.
+
+The slide gives three standard examples:
+
+- **Regression** -> **Mean Squared Error**
+- **Binary classification** -> **Binary Cross-Entropy**
+- **Multiclass** -> **Cross-Entropy**
+
+So the loss function is not arbitrary.
+It must match the structure of the prediction task.
+
+---
+
+### Regression: Mean Squared Error
+
+For regression, the model predicts a continuous value, like:
+
+- house price
+- temperature
+- sales
+- distance
+
+In this setting, we care about **numerical closeness** between prediction and target.
+
+That is why **Mean Squared Error (MSE)** is a natural choice.
+
+At a high level, MSE:
+
+- looks at the difference between prediction and truth,
+- squares it,
+- and averages across examples.
+
+This makes larger numerical mistakes incur larger penalties.
+
+So regression losses are about measuring how far the predicted number is from the true number.
+
+---
+
+### Binary Classification: Binary Cross-Entropy
+
+In binary classification, the output is one of two classes, such as:
+
+- spam vs not spam
+- fracture vs no fracture
+- fraud vs not fraud
+
+Here the model often predicts a probability-like value for the positive class.
+
+So we want a loss that strongly rewards confident correct predictions and strongly penalizes confident wrong predictions.
+
+That is why **Binary Cross-Entropy** is commonly used.
+
+This loss is designed for two-class probabilistic outputs.
+
+So unlike regression, the key issue is not "how far apart are two numbers?" but rather:
+
+> how well does the predicted probability align with the true class?
+
+---
+
+### Multiclass Classification: Cross-Entropy
+
+In multiclass classification, there are more than two possible classes, such as:
+
+- cat, dog, horse
+- digits 0 to 9
+- disease A, disease B, disease C
+
+Now the model outputs a score or probability distribution over many classes.
+
+In this setting, **Cross-Entropy** is the standard loss.
+
+It rewards the model when it assigns high probability to the correct class and penalizes it when the correct class receives low probability.
+
+So again, the loss is chosen to match the structure of the task.
+
+This is why the slide puts the task-loss pairs in a table.
+
+---
+
+### Why the Loss Function Is Not Just a Technical Detail
+
+Students sometimes treat the loss function as just one more formula to memorize.
+
+That is a mistake.
+
+The loss function is one of the most important modeling choices in machine learning because it defines:
+
+- what counts as error,
+- how severely different mistakes are penalized,
+- and therefore what kind of behavior the model will learn.
+
+So choosing the loss is part of defining the learning problem itself.
+
+The architecture tells us what the model **can represent**.
+The loss tells us what the model is being asked to **care about**.
+
+That is a very deep distinction.
+
+---
+
+### How This Connects to Slide 9
+
+Slide 9 ended with two open questions:
+
+1. How do we measure how wrong `f_theta` is?
+2. How do we find good `theta` systematically?
+
+Slide 10 answers the first one.
+
+It says:
+
+- we define a per-sample loss `\ell(\hat{y}, y)`
+- we average it over the dataset to get `\mathcal{L}(\theta)`
+- and we use that scalar as the criterion of model quality
+
+So this slide is the formal beginning of the optimization story.
+
+Before we can minimize anything, we first need to know **what** we are minimizing.
+
+That is exactly what the loss function provides.
+
+---
+
+### A Good Short Summary of the Slide
+
+You can compress the whole slide into this:
+
+```text
+A loss function turns prediction error into a number.
+For one example, that number is ell(y_hat, y).
+For the whole training set, we average those numbers to get L(theta).
+The choice of loss depends on the task.
+```
+
+That is the core message.
+
+---
+
+### Main Takeaway
+
+The whole slide can be summarized as:
+
+> A loss function is the scalar measure of prediction error that tells us how wrong the model is, and the dataset loss `L(theta)` is the average of that error over all training samples, providing the objective that optimization will later try to minimize.
+
+This is the slide where "wrong prediction" becomes a mathematically usable training objective.
+
+---
+
+## Slide 11: Regression: Mean Squared Error
+
+### What's On This Slide
+
+This slide specializes the general loss-function idea from Slide 10 to the case of **regression**.
+
+In regression, the target is a real-valued number, so the model is not choosing among classes. It is trying to predict a continuous quantity such as:
+
+- a price,
+- a temperature,
+- a distance,
+- a score,
+- or a measurement.
+
+So Slide 11 answers the question:
+
+> If the task is regression, what should the output layer look like, and what loss should we use?
+
+The slide’s answer is:
+
+- use a **raw scalar output**
+- and measure error using **Mean Squared Error (MSE)**
+
+---
+
+### Target and Prediction Dimensions Must Match
+
+The slide begins with:
+
+> **Target & prediction dim match**
+
+This is a simple but crucial point.
+
+If the true target `y` is a scalar, then the model prediction `\hat{y}` must also be a scalar.
+
+The slide writes:
+
+$$
+y \in \mathbb{R}, \qquad \hat{y} \in \mathbb{R}
+$$
+
+So in this setup:
+
+- the target is one real number,
+- the prediction is one real number,
+- and the loss compares those two numbers directly.
+
+This is why regression feels more like "predict the correct number" than "choose the correct class."
+
+The output object and the target object must live in the same space, otherwise the error comparison does not make sense.
+
+---
+
+### Why This Slide Uses a Scalar Output
+
+The slide is showing the simplest regression case:
+
+> one input example -> one scalar prediction
+
+That is why it focuses on:
+
+$$
+y \in \mathbb{R}, \qquad \hat{y} \in \mathbb{R}
+$$
+
+In more advanced settings, regression can also have vector outputs, but the core idea is the same:
+
+- the prediction and target must have matching dimensions,
+- and the loss is applied componentwise or aggregated appropriately.
+
+For this slide, the professor keeps it simple by presenting the single-output version first.
+
+---
+
+### Last Layer Has No Activation
+
+The slide then says:
+
+> **Last layer has no activation**
+
+and writes the raw output as:
+
+$$
+\hat{y} = h^{(L)} = \theta_0^{(L)} + \Theta^{(L)} h^{(L-1)}
+$$
+
+This means the final layer is just a linear or affine transformation:
+
+- take the last hidden representation `h^(L-1)`
+- multiply by the final-layer weights
+- add the final-layer bias
+- output the result directly
+
+There is no sigmoid, no softmax, and no extra nonlinear squashing at the end in this setup.
+
+---
+
+### Why No Activation in the Last Layer?
+
+This choice makes sense for regression because the target is a real number.
+
+If we put a restrictive activation on the final layer, we would artificially constrain the possible outputs.
+
+For example:
+
+- sigmoid would force the output into `(0, 1)`
+- `tanh` would force the output into `(-1, 1)`
+- ReLU would force the output to be nonnegative
+
+But many regression targets can be:
+
+- negative or positive,
+- small or large,
+- not confined to a narrow interval.
+
+So a raw linear output is the most natural default because it lets the network predict any real value.
+
+That is why this slide pairs regression with **no final activation**.
+
+---
+
+### The Per-Sample Mean Squared Error
+
+The slide defines the per-sample loss as:
+
+$$
+\ell(\hat{y}, y) = (\hat{y} - y)^2
+$$
+
+This means:
+
+1. compute the prediction error `\hat{y} - y`
+2. square it
+
+That gives a nonnegative number measuring how wrong the prediction is for one sample.
+
+If the prediction is perfect, then:
+
+$$
+\hat{y} = y \quad \Rightarrow \quad (\hat{y} - y)^2 = 0
+$$
+
+So the loss is zero when the prediction is exact.
+
+If the prediction is wrong, the squared difference becomes positive.
+
+---
+
+### Why We Square the Error
+
+The square is doing important work.
+
+First, it removes the sign.
+
+If we used just `\hat{y} - y`, then:
+
+- positive errors and negative errors could cancel each other out
+
+That would be a bad error measure.
+
+Squaring prevents cancellation, because both:
+
+- `(+3)^2 = 9`
+- `(-3)^2 = 9`
+
+So underprediction and overprediction are both penalized.
+
+Second, squaring makes larger mistakes count much more heavily.
+
+For example:
+
+- error `1` gives squared error `1`
+- error `2` gives squared error `4`
+- error `5` gives squared error `25`
+
+So MSE punishes big mistakes strongly.
+
+That is exactly why the slide says:
+
+> **Large errors quadratically**
+
+meaning the penalty grows with the square of the error magnitude.
+
+---
+
+### Dataset Loss for Regression
+
+The slide then defines the dataset loss:
+
+$$
+\mathcal{L}(\theta) = \frac{1}{N}\sum_{i=1}^{N} \left(\hat{y}^{(i)} - y^{(i)}\right)^2
+$$
+
+This is just the average of the squared errors over all training samples.
+
+Equivalently, since `\hat{y}^{(i)} = f_\theta(x^{(i)})`, we can also write:
+
+$$
+\mathcal{L}(\theta) = \frac{1}{N}\sum_{i=1}^{N} \left(f_\theta(x^{(i)}) - y^{(i)}\right)^2
+$$
+
+So for every sample `i`:
+
+1. the network predicts `\hat{y}^{(i)}`
+2. we compare it to the true scalar `y^{(i)}`
+3. we square the difference
+4. we average over the dataset
+
+That gives us one scalar objective telling us how well the model is doing on the training set.
+
+---
+
+### Why This Is Called "Mean Squared Error"
+
+The name comes directly from the formula:
+
+- **Error** = `\hat{y} - y`
+- **Squared** = we square that error
+- **Mean** = we average across samples
+
+So the name is not arbitrary. It describes exactly what the loss does.
+
+This is useful because many machine-learning terms sound abstract until you unpack them. MSE is actually one of the most literal names in the field.
+
+---
+
+### Interpreting the Plot on the Right
+
+The figure on the right shows:
+
+- data points,
+- a regression curve `f_\theta`,
+- and an example vertical error between the predicted value and the true point.
+
+That vertical gap is the regression error for one sample:
+
+$$
+\hat{y}^{(i)} - y^{(i)}
+$$
+
+MSE takes that gap and squares it.
+
+So visually, the slide is saying:
+
+> for regression, training tries to make the model's predicted curve pass close to the observed data points, and the loss measures the size of those deviations.
+
+This is a very intuitive picture of what regression learning means.
+
+---
+
+### Intuition Bullet 1: `+ / -` Values -> Absolute or Square
+
+The first intuition bullet on the slide says:
+
+> **+ / - values -> absolute or square**
+
+This is reminding you that raw prediction errors can be positive or negative:
+
+- if `\hat{y} > y`, the error is positive
+- if `\hat{y} < y`, the error is negative
+
+But we do not want positive and negative errors to cancel out.
+
+So we transform the raw error into a nonnegative quantity.
+
+Two common ways to do that are:
+
+- absolute value
+- square
+
+This slide chooses the square, which leads to MSE.
+
+---
+
+### Intuition Bullet 2: Large Errors Quadratically
+
+The second bullet says:
+
+> **Large errors quadratically**
+
+This is emphasizing the main personality of MSE:
+
+- small errors matter,
+- but large errors matter much more.
+
+That can be good when we really want to discourage big misses.
+
+For example, if predicting `100` instead of `10` would be a serious failure, MSE will penalize that very strongly.
+
+So MSE is not just measuring error. It is saying:
+
+> large deviations are especially undesirable.
+
+That preference is built into the square.
+
+---
+
+### Intuition Bullet 3: Differentiable
+
+The slide’s third bullet says:
+
+> **Differentiable**
+
+This matters because Session 3 is building toward gradient descent and backpropagation.
+
+Optimization methods like gradient descent need derivatives.
+
+MSE is smooth and differentiable with respect to the model output, which makes it easy to optimize using gradient-based methods.
+
+That is one of the major reasons MSE is such a standard regression loss.
+
+It is not only intuitive, but also mathematically convenient for learning.
+
+---
+
+### Why MSE Is a Natural Fit for Regression
+
+Putting all of this together, MSE fits regression well because:
+
+- regression targets are numeric,
+- the prediction error is numeric,
+- squaring gives a clean nonnegative penalty,
+- large mistakes are penalized strongly,
+- and the result is differentiable for optimization.
+
+So MSE is both conceptually natural and computationally practical.
+
+That is why it is often the default loss for basic regression models.
+
+---
+
+### How This Connects to Slide 10
+
+Slide 10 introduced the general idea:
+
+- per-sample loss `\ell(\hat{y}, y)`
+- dataset loss `\mathcal{L}(\theta)`
+- different tasks use different losses
+
+Slide 11 now instantiates that idea for one specific task:
+
+- **task**: regression
+- **output type**: scalar real number
+- **loss**: Mean Squared Error
+
+So this slide is the first concrete example of how the abstract loss-function framework is applied in practice.
+
+---
+
+### A Good Short Summary of the Slide
+
+You can compress the whole slide into this:
+
+```text
+For scalar regression, the model outputs a raw real number.
+The loss for one example is (y_hat - y)^2.
+The training objective is the average of these squared errors over the dataset.
+```
+
+That is the full core idea.
+
+---
+
+### Main Takeaway
+
+The whole slide can be summarized as:
+
+> In scalar regression, the network typically uses a raw linear output with no final activation, and training measures prediction quality using Mean Squared Error, which averages squared prediction gaps and penalizes large numerical mistakes strongly.
+
+This is the standard starting point for regression in neural networks.
+
+---
+
+## Slide 12: The Optimization Problem
+
+### What's On This Slide
+
+This slide answers the **second open question** from Slide 9:
+
+> How do we find good `theta` systematically?
+
+Slide 10 defined the loss.
+Slide 11 gave a concrete example of a loss for regression.
+
+Now Slide 12 says:
+
+> once the loss is defined, learning becomes an **optimization problem**
+
+That is the central idea of modern deep learning.
+
+We are no longer just describing a network or measuring its error.
+We are now asking how to choose parameter values that make that error as small as possible.
+
+---
+
+### The Goal: Minimize the Loss
+
+The slide states the goal clearly:
+
+> **find parameters that minimize loss**
+
+This means we want parameter values `theta` that make the objective function `\mathcal{L}(\theta)` as small as possible.
+
+So training can now be phrased very compactly:
+
+```text
+Pick the parameters that give the smallest loss
+```
+
+This is the formal mathematical version of:
+
+```text
+find the network that makes the best predictions
+```
+
+because "best predictions" have now been translated into "lowest loss."
+
+---
+
+### The Meaning of
+
+$$
+\theta^* = \arg\min_{\theta} \mathcal{L}(\theta)
+$$
+
+This is the key equation on the slide.
+
+It looks compact, but it carries a lot of meaning.
+
+Let us unpack it:
+
+- `\mathcal{L}(\theta)` = the loss as a function of the parameters
+- `\min` = we want the smallest possible value
+- `\arg\min` = we want the **argument**, meaning the parameter values, that achieve that smallest value
+- `\theta^*` = the optimal parameter setting
+
+So this equation does **not** mean:
+
+> "the smallest loss value itself"
+
+It means:
+
+> "the parameter vector `theta` that makes the loss as small as possible"
+
+That distinction is important.
+
+If we wrote:
+
+$$
+\min_{\theta} \mathcal{L}(\theta)
+$$
+
+that would refer to the minimum loss value.
+
+But:
+
+$$
+\arg\min_{\theta} \mathcal{L}(\theta)
+$$
+
+refers to the parameter values where that minimum occurs.
+
+---
+
+### Why Training Is an Optimization Problem
+
+This slide is saying that once we define the loss, training becomes a search problem in parameter space.
+
+We have:
+
+- a huge set of possible parameter values
+- and for each parameter setting, the loss tells us how good or bad it is
+
+So we can imagine a landscape:
+
+- some points in parameter space give high loss
+- some give lower loss
+- and we want to move toward parameter settings with smaller loss
+
+That is what optimization means here.
+
+Deep learning is therefore not just about neural networks.
+It is about optimizing a large, complicated loss function defined by those networks.
+
+---
+
+### Why Not Solve It Analytically?
+
+The slide then asks a very natural question:
+
+> **Why not solve analytically?**
+
+That is, why do we not just derive the exact optimal `theta` in one clean formula?
+
+In simple problems from basic algebra or linear regression, closed-form solutions sometimes exist.
+
+But in deep learning, that usually does not happen.
+
+The slide gives three reasons.
+
+These reasons are fundamental, and each one matters.
+
+---
+
+### Reason 1: `L(theta)` Is Nonlinear in `theta`
+
+The first reason is:
+
+> **`\mathcal{L}(\theta)` is nonlinear in `theta` - no closed form**
+
+This comes directly from the structure of a deep network.
+
+A neural network contains:
+
+- matrix multiplications,
+- nonlinear activation functions,
+- compositions of many layers,
+- and often complicated output mappings and loss functions.
+
+So the final loss as a function of the parameters is highly nonlinear.
+
+That means we usually cannot rearrange the equations and solve for the best parameters directly in a simple formula.
+
+In other words:
+
+> the mathematics is too intertwined to produce a neat exact solution.
+
+That is what "no closed form" means here.
+
+---
+
+### What "No Closed Form" Means
+
+A **closed-form solution** is a direct formula you can write down for the optimum.
+
+For example, in some simpler settings, you can derive an answer explicitly without doing iterative search.
+
+Deep networks generally do not give us that luxury.
+
+Instead of:
+
+```text
+theta* = some exact formula
+```
+
+we usually only have:
+
+```text
+start somewhere
+improve theta step by step
+```
+
+So the absence of a closed-form solution is one of the main reasons training is an algorithmic process rather than a one-step computation.
+
+---
+
+### Reason 2: `theta` Has Millions of Dimensions in Practice
+
+The second reason is:
+
+> **`theta` has millions of dimensions in practice**
+
+This is a scale problem.
+
+In a small toy example, the parameter vector may have just a few dozen numbers.
+
+But real neural networks often have:
+
+- millions,
+- tens of millions,
+- or even billions of parameters.
+
+That means the optimization is happening in an extremely high-dimensional space.
+
+So even if the loss were easier to describe, directly searching such a huge space would still be difficult.
+
+This is why parameter count matters so much.
+
+The network is not just learning one number or ten numbers.
+It is coordinating enormous numbers of interacting parameters at once.
+
+---
+
+### Why High Dimensionality Makes Training Hard
+
+When the parameter space is huge:
+
+- we cannot exhaustively search all possibilities
+- we cannot visualize the full landscape easily
+- and each parameter can affect many others indirectly through the network
+
+So optimization in deep learning is challenging not only because the loss is nonlinear, but also because the search space is enormous.
+
+This is one reason why efficient optimization methods are essential.
+
+Naive search would be hopelessly impractical.
+
+---
+
+### Reason 3: `L(theta)` Is Non-Convex
+
+The third reason is:
+
+> **`\mathcal{L}(\theta)` is non-convex - many local minima**
+
+This is another major difficulty.
+
+A **convex** optimization problem has a very nice property:
+
+- any local minimum is also a global minimum
+
+That makes optimization much easier conceptually.
+
+But deep-network losses are typically **non-convex**, which means the loss landscape can contain:
+
+- many valleys,
+- many hills,
+- flat regions,
+- saddle points,
+- and many local minima.
+
+So the surface is much more complicated than a simple bowl shape.
+
+That is why training a deep network is not just a neat clean optimization exercise.
+It is a messy high-dimensional search over a difficult landscape.
+
+---
+
+### What "Local Minima" Means
+
+A **local minimum** is a point where the loss is lower than nearby points, but not necessarily lower than every point in the whole space.
+
+So it is "locally good" but not guaranteed to be globally best.
+
+This matters because an optimization algorithm may descend into one of these valleys and stop improving significantly there, even though a better valley might exist elsewhere.
+
+So the slide is highlighting that deep-learning optimization is not just about moving downhill.
+It is about moving downhill on a very complicated terrain.
+
+---
+
+### The Strategy: Iterative, Gradient-Based Optimization
+
+After listing the difficulties, the slide gives the practical answer:
+
+> **Strategy: iterative, gradient-based optimization**
+
+This is the key conclusion.
+
+Since we cannot solve for `theta^*` directly, we instead:
+
+1. start from an initial parameter setting
+2. compute how the loss changes with respect to the parameters
+3. update the parameters a little
+4. repeat many times
+
+That is what "iterative" means:
+
+- we improve the parameters step by step rather than all at once
+
+And that is what "gradient-based" means:
+
+- we use gradient information to decide which direction should reduce the loss
+
+This is exactly the doorway into gradient descent and backpropagation.
+
+---
+
+### Why Gradients Are the Right Tool Here
+
+In a huge nonlinear space, we need local information that tells us how the loss responds to small parameter changes.
+
+That is what gradients provide.
+
+A gradient tells us:
+
+- which direction increases the loss
+- and therefore which opposite direction should reduce it
+
+So rather than blindly guessing parameter updates, gradient-based methods use the geometry of the loss surface locally.
+
+That makes learning systematic rather than random.
+
+This is why the course is about to move from the abstract optimization problem to the specific method of gradient descent.
+
+---
+
+### A Useful Mental Picture
+
+It helps to imagine training as hiking in a foggy mountain landscape.
+
+- the height of the ground is the loss
+- your position is the current parameter vector `theta`
+- you want to get to a low valley
+
+But:
+
+- the landscape is huge
+- it is nonlinear
+- it has many valleys
+- and you cannot see the whole map at once
+
+So instead of solving the whole problem globally in one shot, you repeatedly look at the local slope and take a step downhill.
+
+That is the intuition behind iterative gradient-based optimization.
+
+---
+
+### How Slide 12 Connects to the Earlier Slides
+
+The flow of the lecture is now very clear:
+
+- Slides 3 to 8: define the network and its notation
+- Slide 9: define the learning problem
+- Slide 10: define the loss
+- Slide 11: show one concrete loss for regression
+- Slide 12: formulate training as minimizing that loss
+
+So Slide 12 is the exact point where deep learning becomes an optimization problem in the formal mathematical sense.
+
+From here, the lecture can naturally continue to:
+
+- gradient descent
+- backpropagation
+- parameter updates
+
+because the optimization target has now been clearly stated.
+
+---
+
+### A Good Short Summary of the Slide
+
+You can compress the whole slide into this:
+
+```text
+Training means choosing parameters that minimize the loss.
+We write that as theta* = argmin_theta L(theta).
+We cannot solve this directly because the loss is nonlinear, high-dimensional, and non-convex.
+So we use iterative gradient-based optimization.
+```
+
+That is the full roadmap of the slide.
+
+---
+
+### Main Takeaway
+
+The whole slide can be summarized as:
+
+> Once the loss is defined, learning becomes the problem of finding parameter values that minimize that loss, and because deep-network losses are nonlinear, high-dimensional, and non-convex, we solve this using iterative gradient-based optimization rather than an exact analytical formula.
+
+This is the mathematical starting point of gradient descent.
+
+---
+
+## Slide 13: Gradient Descent
+
+### What's On This Slide
+
+This slide introduces the first concrete optimization method used to train neural networks:
+
+> **gradient descent**
+
+Slide 12 said that training is an optimization problem and that the strategy will be **iterative, gradient-based optimization**.
+
+Slide 13 now explains exactly what that means.
+
+The slide gives four core ideas:
+
+1. what the **gradient** is
+2. what the **gradient descent update rule** is
+3. why we move **opposite** to the gradient
+4. what the **learning rate** does
+
+So this slide is the first place where the optimization story becomes algorithmic.
+
+---
+
+### The Gradient `∇_theta L(theta)`
+
+The slide starts with:
+
+$$
+\nabla_{\theta}\mathcal{L}(\theta)
+$$
+
+This symbol means the **gradient of the loss with respect to the parameters**.
+
+At a high level, the gradient tells us:
+
+- how sensitive the loss is to each parameter
+- and in which direction the loss increases most steeply
+
+So the gradient is a mathematical summary of how the loss changes locally around the current parameter setting.
+
+If `theta` has many components, then the gradient is a vector with the same number of components.
+
+That is why the slide also says:
+
+> **One partial derivative per parameter**
+
+So if:
+
+$$
+\theta = (\theta_1, \theta_2, \dots, \theta_p)
+$$
+
+then:
+
+$$
+\nabla_{\theta}\mathcal{L}(\theta)
+=
+\left(
+\frac{\partial \mathcal{L}}{\partial \theta_1},
+\frac{\partial \mathcal{L}}{\partial \theta_2},
+\dots,
+\frac{\partial \mathcal{L}}{\partial \theta_p}
+\right)
+$$
+
+Each component tells us how the loss changes when we change one parameter slightly.
+
+---
+
+### Why the Gradient Points in the Direction of Steepest Ascent
+
+The slide says:
+
+> **Points in direction of steepest ascent**
+
+This is one of the most important facts about gradients.
+
+It means:
+
+- if you move a tiny amount in the direction of the gradient,
+- the loss increases as quickly as possible locally.
+
+So the gradient points **uphill** on the loss surface.
+
+That is why, if our goal is to **minimize** the loss, we do not move in the direction of the gradient.
+
+We move in the **opposite** direction.
+
+That opposite direction is the local steepest descent direction.
+
+This is the core geometric idea behind gradient descent.
+
+---
+
+### What a Partial Derivative Means Here
+
+The slide highlights one example partial derivative:
+
+$$
+\frac{\partial \mathcal{L}}{\partial \theta_j}
+$$
+
+This measures:
+
+> how much the loss changes if we nudge parameter `theta_j` slightly, while holding the others fixed
+
+So:
+
+- a large positive value means increasing `theta_j` increases the loss strongly
+- a large negative value means increasing `theta_j` decreases the loss
+- a value near zero means the loss is not very sensitive to that parameter locally
+
+When we collect all these partial derivatives together, we get the full gradient.
+
+So the gradient is essentially the local sensitivity report for all parameters at once.
+
+---
+
+### The Gradient Descent Update Rule
+
+The central equation on the slide is:
+
+$$
+\theta \leftarrow \theta - \eta \nabla_{\theta}\mathcal{L}(\theta)
+$$
+
+This is the gradient descent update.
+
+It means:
+
+1. compute the gradient at the current parameter setting
+2. scale it by a positive number `eta`
+3. subtract that quantity from the current parameters
+4. use the result as the new parameter vector
+
+So we update the parameters by taking a small step in the downhill direction.
+
+That is the entire core algorithm in one line.
+
+---
+
+### Why We Subtract the Gradient
+
+The slide says:
+
+> **Step opposite to gradient -> go downhill**
+
+This follows directly from the fact that the gradient points toward steepest ascent.
+
+If:
+
+- the gradient points uphill
+
+then:
+
+- the negative gradient points downhill
+
+So the update
+
+$$
+\theta - \eta \nabla_{\theta}\mathcal{L}(\theta)
+$$
+
+means:
+
+> move a little bit in the direction that should reduce the loss
+
+If we added the gradient instead of subtracting it, we would be doing **gradient ascent**, which would increase the loss.
+
+That is the opposite of what we want during training.
+
+---
+
+### The Role of the Learning Rate `eta`
+
+The slide says:
+
+> **`eta > 0`: learning rate - controls step size**
+
+The learning rate `eta` tells us how big each update step should be.
+
+This is crucial.
+
+The gradient tells us the direction, but the learning rate tells us how far to move in that direction.
+
+So:
+
+- the gradient = direction
+- the learning rate = step size
+
+Together, they define the update.
+
+This is why the slide labels the arrow on the plot as something like:
+
+$$
+\eta \cdot \nabla \mathcal{L}
+$$
+
+because the step length depends on both the gradient and `eta`.
+
+---
+
+### What Happens If the Learning Rate Is Too Small
+
+If `eta` is too small:
+
+- each update barely changes the parameters
+- the loss may decrease, but very slowly
+- training can take a long time
+
+So a tiny learning rate is usually safe but inefficient.
+
+The model moves downhill in very small steps and may need many iterations to make meaningful progress.
+
+---
+
+### What Happens If the Learning Rate Is Too Large
+
+If `eta` is too large:
+
+- updates can overshoot the valley
+- the loss can bounce around
+- optimization can become unstable
+- training may even diverge instead of improving
+
+So a large learning rate can make training fast if it is well chosen, but harmful if it is too aggressive.
+
+This is why the learning rate is one of the most important hyperparameters in deep learning.
+
+The slide does not go into tuning strategies yet, but it correctly emphasizes that `eta` controls the step size.
+
+---
+
+### Interpreting the Plot on the Right
+
+The figure on the right gives a 1-dimensional picture of the loss landscape.
+
+The horizontal axis is:
+
+$$
+\theta
+$$
+
+and the vertical axis is:
+
+$$
+\mathcal{L}(\theta)
+$$
+
+The curve is shaped like a bowl, and the point `\theta^*` at the bottom is the minimizer.
+
+The points labeled `\theta_0`, `\theta_1`, `\theta_2` show successive iterations of gradient descent.
+
+The picture is illustrating:
+
+- start somewhere on the slope
+- compute the local gradient
+- step downhill
+- repeat
+- gradually approach the minimum
+
+So the visual message matches the update equation exactly.
+
+---
+
+### Why the Plot Is Shown in One Dimension
+
+Real neural networks do not have one parameter.
+They have many, often millions.
+
+So the true loss surface lives in a huge high-dimensional space.
+
+The slide uses a 1D picture because it is easier to visualize the basic idea:
+
+- slope
+- uphill
+- downhill
+- minimum
+
+So the picture is not the full reality of deep learning optimization.
+It is a simplified illustration of the local logic of the update rule.
+
+The exact same idea extends to many dimensions, where the slope becomes the gradient vector.
+
+---
+
+### Repeat Until Convergence
+
+The slide’s final bullet says:
+
+> **Repeat until convergence**
+
+This means gradient descent is not a one-step method.
+
+We keep applying the update again and again:
+
+1. compute the gradient
+2. update parameters
+3. compute the new gradient
+4. update again
+
+until the parameters or the loss stop changing much, or until some stopping condition is reached.
+
+In plain language:
+
+```text
+look at the slope
+take a downhill step
+repeat many times
+```
+
+That repeated stepping is what gradually trains the model.
+
+---
+
+### What "Convergence" Means
+
+Convergence usually means that the optimization has reached a point where:
+
+- the loss is no longer decreasing much
+- the gradient is small
+- or parameter updates have become very small
+
+It does **not** necessarily mean we found the absolute global minimum.
+
+In deep learning, convergence usually means:
+
+> we have reached a stable or good-enough solution for training
+
+This is important because the loss surface may be complicated and non-convex, as Slide 12 explained.
+
+So convergence is usually about practical stabilization, not perfect mathematical certainty.
+
+---
+
+### A More Operational View of the Algorithm
+
+You can think of gradient descent as this loop:
+
+```text
+initialize theta
+repeat:
+    compute loss L(theta)
+    compute gradient ∇theta L(theta)
+    update theta <- theta - eta ∇theta L(theta)
+```
+
+This is the simplest training loop at the heart of many neural-network methods.
+
+Of course, real training often uses batches, more advanced optimizers, and backpropagation to compute gradients efficiently, but conceptually this is the foundation.
+
+---
+
+### Why This Slide Matters for Backpropagation
+
+Gradient descent tells us **how to use** gradients.
+
+But it does not yet tell us **how to compute** those gradients efficiently for a deep network with many layers.
+
+That is exactly where backpropagation comes in.
+
+So the relationship is:
+
+- **loss** defines what we want to minimize
+- **gradient descent** defines how we update parameters using gradient information
+- **backpropagation** computes that gradient information efficiently
+
+This slide is the middle piece of that chain.
+
+---
+
+### How Slide 13 Connects to Slide 12
+
+Slide 12 said:
+
+> use iterative, gradient-based optimization
+
+Slide 13 now specifies the simplest such method:
+
+> gradient descent
+
+So Slide 13 is the direct operational answer to the optimization problem formulated on Slide 12.
+
+It turns the abstract objective
+
+$$
+\theta^* = \arg\min_{\theta}\mathcal{L}(\theta)
+$$
+
+into a concrete step-by-step algorithm for trying to approach that optimum.
+
+---
+
+### A Good Short Summary of the Slide
+
+You can compress the whole slide into this:
+
+```text
+The gradient tells us which direction increases the loss fastest.
+So to reduce the loss, we move in the opposite direction.
+The update is theta <- theta - eta ∇theta L(theta).
+The learning rate eta controls how big each step is.
+Repeat this until the optimization stabilizes.
+```
+
+That is the full core idea.
+
+---
+
+### Main Takeaway
+
+The whole slide can be summarized as:
+
+> Gradient descent minimizes the loss by repeatedly updating the parameters in the direction opposite to the gradient, using the learning rate to control step size, so that the model gradually moves downhill on the loss surface toward a minimum.
+
+This is the basic optimization rule behind neural-network training.
+
+---
+
+## Slide 14: The Key Question
+
+### What's On This Slide
+
+This is the closing conceptual slide of Session 3.
+
+It does not introduce a new loss or a new optimization rule. Instead, it asks the most important practical question that remains after Slide 13:
+
+> If gradient descent needs the gradient, how do we actually compute that gradient for a deep network?
+
+That is why the slide is titled:
+
+> **The Key Question**
+
+Everything in the session has been building toward this moment.
+
+The earlier slides established:
+
+- what a deep network is,
+- how to write it as layered compositions,
+- what the learning problem is,
+- what a loss function is,
+- and how gradient descent uses gradients.
+
+Now Slide 14 asks the missing implementation question:
+
+> how do we differentiate efficiently through a network that is made of many composed layers?
+
+The slide’s answer is:
+
+> **Computation graphs + Backpropagation**
+
+---
+
+### Gradient Descent Needs the Gradient
+
+The slide starts with:
+
+> **Gradient descent needs:**
+
+and then writes:
+
+$$
+\nabla_{\theta}\mathcal{L}(\theta) = \frac{\partial \mathcal{L}}{\partial \theta}
+$$
+
+The exact notation is compact, but the idea is simple:
+
+gradient descent cannot update the parameters unless it knows how the loss changes with respect to those parameters.
+
+So to train the model, we need quantities like:
+
+- `∂L / ∂theta_1`
+- `∂L / ∂theta_2`
+- `∂L / ∂theta_3`
+- and so on for all parameters
+
+That is what the full gradient represents.
+
+Slide 13 already told us how to **use** this gradient:
+
+$$
+\theta \leftarrow \theta - \eta \nabla_{\theta}\mathcal{L}(\theta)
+$$
+
+But that update rule only helps once the gradient is actually available.
+
+So Slide 14 is pointing out the hidden computational bottleneck:
+
+> where does `\nabla_\theta \mathcal{L}(\theta)` come from?
+
+---
+
+### Why This Is a Nontrivial Problem
+
+At first glance, someone might think:
+
+> "Just differentiate the loss."
+
+But the problem is that a deep network is not a single simple expression.
+
+It is a composition of many operations:
+
+- matrix multiplications,
+- bias additions,
+- activation functions,
+- layer after layer,
+- and finally the loss function itself.
+
+So the loss depends on the parameters only indirectly through a long chain of intermediate computations.
+
+That is why the slide says:
+
+> **`f_theta` is a composition of many layers**
+
+This is the real difficulty.
+
+The deeper the network becomes, the longer this dependency chain becomes.
+
+So the question is not merely:
+
+> can we differentiate?
+
+It is:
+
+> can we differentiate **efficiently** through a long chain of composed functions?
+
+That word efficiently is the whole point of the slide.
+
+---
+
+### Why Layer Composition Makes Differentiation Hard
+
+Suppose a network looks like:
+
+```text
+x -> h^(1) -> h^(2) -> h^(3) -> ... -> y_hat -> loss
+```
+
+Then an early parameter, such as a weight in layer 1, affects the loss only through everything that happens after it.
+
+That means if we want:
+
+$$
+\frac{\partial \mathcal{L}}{\partial \theta^{(1)}}
+$$
+
+we must account for how changing that parameter affects:
+
+- layer 1 output,
+- which affects layer 2 output,
+- which affects layer 3 output,
+- and so on,
+- until it eventually changes the loss.
+
+So each parameter influences the loss through a chain of dependencies.
+
+That is exactly the kind of situation where the **chain rule** from calculus becomes essential.
+
+Slide 14 is essentially setting up the question:
+
+> how do we apply the chain rule systematically across a whole deep network?
+
+---
+
+### The Hidden Role of the Chain Rule
+
+The slide does not explicitly write the chain rule, but it is the mathematics behind everything that follows.
+
+When a function is built by composition, like:
+
+$$
+\mathcal{L}(\theta) = \ell(f_{\theta}(x), y)
+$$
+
+and `f_theta` itself is composed of many layer functions, then differentiating the loss requires repeatedly applying the chain rule.
+
+That means:
+
+- compute how the loss changes with respect to the output,
+- then how the output changes with respect to the previous layer,
+- then how that previous layer changes with respect to an earlier layer,
+- and continue backward through the network.
+
+So the gradient computation problem is really:
+
+> how do we organize all those chain-rule calculations without doing massive redundant work?
+
+That is the exact motivation for backpropagation.
+
+---
+
+### Why Naive Differentiation Would Be Too Expensive
+
+In principle, you could try to compute derivatives separately for each parameter one by one.
+
+But for a deep network, that would be extremely inefficient because:
+
+- there may be millions of parameters,
+- many derivative calculations reuse the same intermediate quantities,
+- and recomputing everything from scratch for each parameter would waste enormous amounts of work.
+
+So the challenge is not only correctness.
+It is computational efficiency.
+
+We need a method that exploits the layered structure of the network so that shared intermediate derivatives are reused rather than recomputed.
+
+That is exactly what backpropagation does.
+
+---
+
+### Why the Slide Says "Computation Graphs"
+
+The slide’s answer is not just:
+
+> backpropagation
+
+It says:
+
+> **Computation graphs + Backpropagation**
+
+This is important because backpropagation works naturally when the forward computation is represented as a **computation graph**.
+
+A computation graph is a structured way to represent:
+
+- inputs,
+- intermediate variables,
+- operations,
+- and outputs
+
+as nodes and edges in a graph.
+
+In plain language, it is a map of how the final output was computed step by step.
+
+That structure makes it possible to differentiate systematically by moving backward through the graph.
+
+So the graph gives us the organization, and backpropagation gives us the backward derivative procedure.
+
+---
+
+### What a Computation Graph Really Gives Us
+
+If we write the forward pass as a graph, then every quantity in the network is connected to the quantities it depends on.
+
+For example:
+
+- one node might represent `z = Wx + b`
+- another node might represent `h = a(z)`
+- another node might represent the loss `L(h, y)`
+
+Now the full network is no longer just a big messy formula.
+It is a chain of elementary operations.
+
+That is powerful because differentiating a complicated expression becomes much easier when we break it into small local pieces.
+
+So a computation graph turns:
+
+- one huge derivative problem
+
+into:
+
+- many small derivative problems connected together
+
+This is the right perspective for deep learning.
+
+---
+
+### What Backpropagation Does
+
+Backpropagation is the algorithm that computes gradients efficiently by moving **backward** through the network after the forward pass.
+
+At a high level, it does this:
+
+1. run the forward pass and compute the loss
+2. start from the loss
+3. propagate derivative information backward through each operation
+4. accumulate gradients for each parameter
+
+So backpropagation is not a separate learning objective and not a replacement for gradient descent.
+
+It is the mechanism that tells gradient descent what the gradient actually is.
+
+This relationship is crucial:
+
+- **loss** defines what we want to minimize
+- **gradient descent** defines how parameters are updated
+- **backpropagation** computes the gradients used in those updates
+
+Slide 14 is explicitly pointing at that final piece.
+
+---
+
+### Why Backpropagation Is Efficient
+
+The word **efficiently** on the slide matters a lot.
+
+Backpropagation is efficient because it reuses intermediate results.
+
+During the forward pass, the network already computes many intermediate quantities, such as:
+
+- linear combinations,
+- activations,
+- outputs of each layer
+
+During the backward pass, backpropagation reuses that structure and applies local derivatives step by step.
+
+So instead of independently differentiating the full network with respect to each parameter from scratch, it shares computations across parameters.
+
+That is why it scales to deep networks with many layers.
+
+Without this efficiency, modern neural-network training would be far less practical.
+
+---
+
+### Why This Is the Real Bridge to the Next Session Topic
+
+Conceptually, Slide 14 is a bridge slide.
+
+It says:
+
+- we know what the gradient descent update looks like
+- but we still do not know how to obtain the gradient for a deep model
+- so the next topic must explain efficient differentiation
+
+This is the natural transition into:
+
+- computation graphs
+- chain rule in network form
+- backpropagation equations
+
+So Slide 14 is not teaching the full backprop algorithm yet.
+It is preparing the motivation for it.
+
+That is why the slide is short, but very important.
+
+---
+
+### How Slide 14 Connects to the Whole Session
+
+The full session arc now becomes clear:
+
+- Slides 3 to 8: define deep networks and notation
+- Slide 9: define the learning problem
+- Slides 10 and 11: define loss functions
+- Slide 12: formulate optimization
+- Slide 13: introduce gradient descent
+- Slide 14: ask how to compute gradients efficiently
+
+So Slide 14 is the final missing link in the training story.
+
+Without it, the session would still be incomplete, because we would know:
+
+- what to minimize
+- and how to update parameters once gradients are known
+
+but not:
+
+- how to actually obtain those gradients in a deep network
+
+That is exactly the gap this slide identifies.
+
+---
+
+### A Good Short Summary of the Slide
+
+You can compress the whole slide into this:
+
+```text
+Gradient descent needs gradients of the loss with respect to all parameters.
+But a deep network is a composition of many layers, so those derivatives are not trivial to compute efficiently.
+That is why we use computation graphs and backpropagation.
+```
+
+That is the whole message.
+
+---
+
+### Main Takeaway
+
+The whole slide can be summarized as:
+
+> The key remaining challenge in training deep networks is not just knowing that gradient descent needs `∇_theta L(theta)`, but computing that gradient efficiently through many composed layers, and the standard solution is to represent the forward computation as a computation graph and use backpropagation to propagate derivatives backward through it.
+
+This is the slide that turns the optimization story into the backpropagation story.
